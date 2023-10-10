@@ -1,0 +1,12 @@
+Sub ZMain()
+
+dim resultado
+
+resultado="1|2|3|j"
+
+ consultas=Split(resultado, "|")
+ 
+ WordCount = UBound(consultas) + 1
+ msgbox(WordCount)
+
+end sub

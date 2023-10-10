@@ -1,0 +1,15 @@
+from configparser import ConfigParser
+config = ConfigParser()
+
+config.read("{rutaPadre}config/config.ini")
+SetVar ('ws_INFOCRED',config.get("WS", "ws_INFOCRED"))
+SetVar ('ws_SEGIP',config.get("WS", "ws_SEGIP"))
+SetVar ('passInfocredEncript',config.get("PASSWORD", "passInfocredEncript"))
+SetVar ('passSegipEncript',config.get("PASSWORD", "passSegipEncript"))
+SetVar ('ws_INFOCENTER',config.get("WS", "ws_INFOCENTER"))
+SetVar ('pinInfocred',config.get("PIN", "pinInfocred"))
+SetVar ('ws_netbank_user',config.get("WS_NETBANK", "ws_netbank_user"))
+SetVar ('ws_netbank_pass',config.get("WS_NETBANK", "ws_netbank_pass"))
+SetVar ('ws_authenticate',config.get("WS_NETBANK", "ws_authenticate"))
+SetVar ('ws_ConsultaCliente',config.get("WS_NETBANK", "ws_ConsultaCliente"))
+SetVar ('ws_ImpresionHojaRiesgo',config.get("WS_NETBANK", "ws_ImpresionHojaRiesgo"))

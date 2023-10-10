@@ -1,0 +1,1 @@
+rundll32 PRINTUI.dll,PrintUIEntry /y /n "ALLDIGITAL"

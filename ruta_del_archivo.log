@@ -1,0 +1,39 @@
+###########################
+#           CI           #
+###########################
+7904859
+
+###########################
+#      Data1 Comparar    #
+###########################
+Registro 1:
+ID_PERSONA: 7904859
+TIKET: 11007
+ASFI_PERIODO: septiembre-2022
+ASFI_DEUDA_SALDO: 40000.0
+ASFI_CANT_DD: 1
+ASFI_CANT_CAL_DIST: 0
+INFOCRED_ULT_F_ACT: 30/09/2022
+INFOCRED_SALDO_Y_CONT: 51108.0
+INFOCRED_CANT_ESTADO: 0
+INFOCRED_CANT_C_REHAB: 0
+INFOCRED_CANT_D_CC_AFP_SAFIS: 0
+
+Registro 2:
+ID_PERSONA: 7904859
+TIKET: 11011
+ASFI_PERIODO: septiembre-2022
+ASFI_DEUDA_SALDO: 51107.97
+ASFI_CANT_DD: 2
+ASFI_CANT_CAL_DIST: 0
+INFOCRED_ULT_F_ACT: 30/09/2022
+INFOCRED_SALDO_Y_CONT: 51108.0
+INFOCRED_CANT_ESTADO: 0
+INFOCRED_CANT_C_REHAB: 0
+INFOCRED_CANT_D_CC_AFP_SAFIS: 0
+
+###########################
+#      Observados        #
+###########################
+True
+
