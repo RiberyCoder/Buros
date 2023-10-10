@@ -1,0 +1,12 @@
+1|Historial (24 meses)|H24M
+2|Consulta (CI)|CI
+3|Por nombre completo|NCOM
+4|Consulta (Nit)|CODNIT
+5|Consulta (Nit Adicional)|CODNITAD
+6|Por carnet de Identidad|PCI
+7|Antecedentes Judiciales (CI)|ANTJUDCI
+8|Antecedentes Judiciales (Nit)|ANTJUDNIT
+9|Antecedentes Judiciales (Nit Adicional)|ANTJUDNITAD
+10|Resumida (CI)|RESCI
+11|Resumida (Nit)|RESNIT
+12|Resumida (Nit Adicional)|RESNITAD

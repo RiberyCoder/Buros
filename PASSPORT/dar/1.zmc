@@ -1,0 +1,14 @@
+Sub ZMain()
+
+msgbox ("hola mundo")
+Dim Text, ret
+SendHostKeys ("cd /nfs/bexe")
+ret = WaitForHostUpdate(10)
+SendHostKeys ("<RETURN>")
+SendHostKeys ("export DBSFI=sfi021_tic")
+ret = WaitForHostUpdate(10)
+SendHostKeys ("<RETURN>")
+SendHostKeys ("fglgo ad000.4gi")
+ret = WaitForHostUpdate(10)
+SendHostKeys ("<RETURN>")
+End Sub

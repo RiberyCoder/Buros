@@ -1,0 +1,1 @@
+del D:\AD\DESEMBOLSO\reportes\*.pdf

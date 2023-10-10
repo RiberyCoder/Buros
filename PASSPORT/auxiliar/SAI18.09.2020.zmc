@@ -1,0 +1,822 @@
+Option Explicit
+
+dim ini_sintesis_credenciales
+ini_sintesis_credenciales="C:\AD\PROMUJER\CUADRESERV\archivos\sol2Credenciales\SOLDATA.txt"
+dim ini_sintesis_empresas
+ini_sintesis_empresas="C:\AD\PROMUJER\CUADRESERV\scripts\ini_sintesis_pagos.ini"
+
+dim rol 
+dim sintesis_user_0
+dim sintesis_user
+dim sintesis_pass
+dim sintesis_agencia
+dim sintesis_fecha_ini
+
+
+
+
+dim hoy
+dim desde, desde_
+dim hasta, hasta_
+dim delay
+delay=1
+
+dim fileoriginal
+fileoriginal="C:\AD\PROMUJER\CUADRESERV\archivos\tempsintesis\PrintJob.txt"
+
+dim rutaarchivosnuevos
+rutaarchivosnuevos="C:\AD\PROMUJER\CUADRESERV\archivos\sin\"
+
+dim rutaarchivoserror
+rutaarchivoserror="C:\AD\PROMUJER\CUADRESERV\archivos\sin\"
+
+dim ruterrores
+ruterrores="C:\AD\PROMUJER\CUADRESERV\archivos\Agencias\errores\"
+
+dim rutasolicitudes
+rutasolicitudes="C:\AD\PROMUJER\CUADRESERV\archivos\sol2\"
+
+dim rutacredenciales
+rutacredenciales="C:\AD\PROMUJER\CUADRESERV\archivos\sol2Credenciales\"
+
+dim rutaresultados
+rutaresultados="C:\AD\PROMUJER\CUADRESERV\archivos\Agencias\"
+
+dim rutaprocesados
+rutaprocesados="C:\AD\PROMUJER\CUADRESERV\archivos\sol2procesado\"
+
+dim rutacarpetanueva
+dim errorloguin
+dim mensaje
+
+
+
+Sub ZMain()
+	Dim Text, ret
+	Dim objFSO, objFolder,  colFiles, objFile
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	Set objFolder = objFSO.GetFolder(rutacredenciales)
+	Set colFiles = objFolder.Files
+	
+	For Each objFile in colFiles
+		'msgbox  objFile.Name
+		sintesis_user_0=  ReadIni(rutacredenciales & objFile.Name,"CREDENCIALES","SINTESIS_USER")
+		sintesis_user=  ReadIni(rutacredenciales & objFile.Name,"CREDENCIALES","OTR_USER")
+		sintesis_pass=  ReadIni(rutacredenciales & objFile.Name,"CREDENCIALES","OTR_PASS")
+		sintesis_fecha_ini=  ReadIni(rutacredenciales & objFile.Name,"CREDENCIALES","SINTESIS_FEC")
+		sintesis_agencia=  ReadIni(rutacredenciales & objFile.Name,"CREDENCIALES","AGENCIA")
+		sintesis_fecha_ini=  Replace(sintesis_fecha_ini,"/","")
+		
+		if (VerificaSolicitudesPrevias ("SUP_" & sintesis_user_0 &"_"&  sintesis_fecha_ini )) = False then		
+			
+			if ( Inicia_sesion2 = False) then
+				'msgbox (errorloguin)	
+				'call cerrar()	
+			Else
+				call LeeArchivo()
+				call salirmenu()
+				'call cerrar()	
+			End if
+		else
+			call EscribeError( "EL USUARIO SOLICITADO YA REALIZO 1 OPERACION VIA ROBOT VAVOR COMPLETAR MANUALMENTE LOS REGISTROS QUE NECESITE" )
+		end if
+		
+		
+	mueve_archivo(objFile)	
+	Next
+	
+	call cerrar()		
+	
+End Sub
+
+sub mueve_archivo(byref fileoriginal2)
+	dim fso
+	dim objFSO
+	dim mensaje
+
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set objFSO = CreateObject("Scripting.FileSystemObject") 
+
+		If (fso.FileExists(fileoriginal2)) Then
+			
+			objFSO.CopyFile fileoriginal2,rutaprocesados & "SUP_CRED" &  sintesis_user_0  & "_" & sintesis_fecha_ini & ".txt"
+			espera (2)
+			call elimina_archivo(fileoriginal2)	
+		End If
+		
+		If (fso.FileExists(rutasolicitudes & "SUP_" &  sintesis_user_0  & "_" & sintesis_fecha_ini & ".txt")) Then
+			
+			objFSO.CopyFile rutasolicitudes & "SUP_" &  sintesis_user_0  & "_" & sintesis_fecha_ini & ".txt", rutaprocesados & "SUP_SOLICITUD" &  sintesis_user_0  & "_" & sintesis_fecha_ini & ".txt"
+			
+			espera (2)
+			call elimina_archivo(rutasolicitudes & "SUP_" &  sintesis_user_0  & "_" & sintesis_fecha_ini & ".txt")	
+		End If
+		
+		set fso = Nothing
+		set objFSO = Nothing
+end sub
+
+Function Inicia_sesion2 ()
+	Inicia_sesion2=False
+		
+		SendHostKeys (sintesis_user)
+		call espera(1)
+		SendHostKeys ("<RETURN>")
+		call espera(1)
+		errorloguin = trim(GetString(23,1,40))
+		if (errorloguin <> "" )then 
+			Inicia_sesion2=False
+			call EscribeError( errorloguin )	
+			Exit Function
+		else
+			SendHostKeys (sintesis_pass)
+			call espera(1)
+			SendHostKeys ("<RETURN>")
+		end if
+		
+		mensaje=trim(GetString(13, 2, 50))
+		
+		if mensaje = "MODULOS" then			
+			Inicia_sesion2=True
+		else
+			call EscribeError("NO SE ENCONTRO EL MENU DE MODULOS VERIFIQUE POR FAVOR")	
+			Inicia_sesion2=False
+		end if	
+	
+End Function
+
+Function ReadIni( myFilePath, mySection, myKey )
+    Const ForReading   = 1
+    Const ForWriting   = 2
+    Const ForAppending = 8
+
+    Dim intEqualPos
+    Dim objFSO, objIniFile
+    Dim strFilePath, strKey, strLeftString, strLine, strSection
+
+    Set objFSO = CreateObject( "Scripting.FileSystemObject" )
+
+    ReadIni     = ""
+    strFilePath = Trim( myFilePath )
+    strSection  = Trim( mySection )
+    strKey      = Trim( myKey )
+
+    If objFSO.FileExists( strFilePath ) Then
+        Set objIniFile = objFSO.OpenTextFile( strFilePath, ForReading, False )
+        Do While objIniFile.AtEndOfStream = False
+            strLine = Trim( objIniFile.ReadLine )
+
+            ' Check if section is found in the current line
+            If LCase( strLine ) = "[" & LCase( strSection ) & "]" Then
+                strLine = Trim( objIniFile.ReadLine )
+
+                ' Parse lines until the next section is reached
+                Do While Left( strLine, 1 ) <> "["
+                    ' Find position of equal sign in the line
+                    intEqualPos = InStr( 1, strLine, "=", 1 )
+                    If intEqualPos > 0 Then
+                        strLeftString = Trim( Left( strLine, intEqualPos - 1 ) )
+                        ' Check if item is found in the current line
+                        If LCase( strLeftString ) = LCase( strKey ) Then
+                            ReadIni = Trim( Mid( strLine, intEqualPos + 1 ) )
+                            ' In case the item exists but value is blank
+                            If ReadIni = "" Then
+                                ReadIni = " "
+                            End If
+                            ' Abort loop when item is found
+                            Exit Do
+                        End If
+                    End If
+
+                    ' Abort if the end of the INI file is reached
+                    If objIniFile.AtEndOfStream Then Exit Do
+
+                    ' Continue with next line
+                    strLine = Trim( objIniFile.ReadLine )
+                Loop
+            Exit Do
+            End If
+        Loop
+        objIniFile.Close
+    Else
+        'WScript.Echo strFilePath & " doesn't exists. Exiting..."
+        'Wscript.Quit 1
+    End If
+End Function
+
+Sub espera (byref cuanto)
+	dim x
+	dim ret
+	 For x = 1 To cuanto
+		 ret = WaitForHostUpdate(delay)
+	   Next
+end sub
+
+Sub cerrar ()
+		'SendHostKeys ("<DOWN>")
+		'SendHostKeys ("<DOWN>")
+		'SendHostKeys ("<DOWN>")
+		'SendHostKeys ("<DOWN>")
+		'SendHostKeys ("<ENTER>")
+		
+		'ExecMenuCmd ("File-Exit All")
+		ExitAllSessions
+End Sub
+
+sub EscribeFin()
+    
+	dim fs12
+	dim a12		
+			Set fs12 = CreateObject("Scripting.FileSystemObject")
+			Set a12 = fs12.CreateTextFile(rutaarchivosnuevos &  "FIN.txt", True)
+			a12.Close
+End Sub
+
+sub EscribeError(byref mensaje_error)
+	dim fs12
+	dim a12		
+	dim hora
+	hora= Hour(Now())& Minute(Now()) & second(Now())
+			Set fs12 = CreateObject("Scripting.FileSystemObject")
+			Set a12 = fs12.CreateTextFile(ruterrores & sintesis_user_0 & "_" & sintesis_user & "_" & sintesis_fecha_ini & "_" & hora & "_ERR_SAI.txt", True)
+			a12.WriteLine(mensaje_error)
+			a12.Close			
+End Sub
+
+sub graficapantalla()
+	dim y, linea
+	For y = 1 To 25
+	linea = GetString(y,1, 80)
+	msgbox y & " " & linea
+	Next
+end sub
+
+sub ExtraeData()
+    dim d_d, d_m, d_y
+	dim mensaje
+	dim arr_ini
+	
+	dim fs11
+	dim a11	
+	arr_ini = dateformat(sintesis_fecha_ini)
+	d_d = mid(arr_ini,1,2)
+	d_m = mid(arr_ini,4,2)
+	d_y = mid(arr_ini,7,4) 
+	
+	msgbox(rol)
+	if (rol="CAJ") then
+		SendHostKeys ("<DOWN>")	
+		'sintesis_fecha_fin=  ReadIni(ini_sintesis_fechas,"FECHAS","FECHA_FIN")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("9999") 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)		
+		SendHostKeys ("<RIGHT>")
+		call espera(1)	
+
+		SendHostKeys ("<ANSIF2>")
+				
+		call esperapantalla("MSG",22,2, 3)
+		mensaje = GetString(22, 7, 6)		
+		
+		if mensaje = "Aliste" then
+			'MsgBox ("SI	HABIA  "& mensaje)
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			
+			call EsperarExistenciaArchivo(fileoriginal)
+			
+			call mueve_archivo(fileoriginal,sintesis_user & "_TODOS" ,rutaarchivosnuevos,arr_ini)
+			
+		else
+			'MsgBox ("NO HABIA NADA "& mensaje)		
+			
+			Set fs11 = CreateObject("Scripting.FileSystemObject")
+			Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  rol & "_" & sintesis_user & "_TODOS_" & d_d & d_m & d_y & ".txt", True)
+			mensaje = GetString(22, 7, 30)		
+			a11.WriteLine(mensaje)
+			a11.Close
+
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			
+		end if
+		
+			call espera(2)
+	end if 
+	
+	if (rol="SUP") then
+		SendHostKeys ("<DOWN>")	
+		'sintesis_fecha_fin=  ReadIni(ini_sintesis_fechas,"FECHAS","FECHA_FIN")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("9999") 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)
+		SendHostKeys ("9999") 
+		call espera(1)		
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)		
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)		
+
+		SendHostKeys ("<RIGHT>")
+		call espera(1)	
+
+		SendHostKeys ("<ANSIF2>")
+				
+		call esperapantalla("MSG",22,2, 3)
+		mensaje = GetString(22, 7, 6)		
+		
+		if mensaje = "Aliste" then
+			'MsgBox ("SI	HABIA  "& mensaje)
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			
+			call EsperarExistenciaArchivo(fileoriginal)
+			
+			call mueve_archivo(fileoriginal,sintesis_user & "_TODOS" ,rutaarchivosnuevos,arr_ini)
+			
+		else
+			'MsgBox ("NO HABIA NADA "& mensaje)		
+			
+			Set fs11 = CreateObject("Scripting.FileSystemObject")
+			Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  rol & "_" & sintesis_user & "_TODOS_" & d_d & d_m & d_y & ".txt", True)
+			mensaje = GetString(22, 7, 30)		
+			a11.WriteLine(mensaje)
+			a11.Close
+
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			
+		end if
+		
+			call espera(2)
+	end if 
+	
+	
+End Sub
+
+sub elimina_archivo(byref file)
+ on error resume next
+	dim fso, PV5
+	Set fso = CreateObject("Scripting.FileSystemObject")
+		If (fso.FileExists(file)) Then 
+			Set PV5 = CreateObject("Scripting.FileSystemObject")
+			
+			set fso = Nothing
+			''WScript.Echo "Borrando "  & file
+			PV5.deletefile file , True
+			set PV5 = Nothing
+		Else 
+		    ''WScript.Echo "No se encontro "  & file
+		End If
+end sub
+
+sub LeeArchivo()
+    dim fso111
+    dim filename
+    dim listFile
+    dim listLines
+    dim sintesis_emp_code
+	dim sintesis_empresa
+	dim sintesis_codigo
+	dim procesado
+    dim line, line2
+	Set fso111=CreateObject("Scripting.FileSystemObject")
+	filename = rutasolicitudes &"SUP_" & sintesis_user_0 &"_"&  sintesis_fecha_ini &".txt"
+	'msgbox (filename)
+	listFile = fso111.OpenTextFile(filename).ReadAll
+	listLines = Split(listFile, vbCrLf)
+	For Each line In listLines
+		procesado=False 
+		dim fso
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		If (fso.FileExists(fileoriginal)) Then 	
+			call elimina_archivo(fileoriginal)
+		End If
+    
+		if line <> "" then
+		
+	        line2= Split(line, "|")
+	'		msgbox (line )		
+			if line2(4) = "C" then
+				procesado = CtasxPagar ( line2(1), line2(0), line2(3), "200" )
+				if procesado=True then
+					'Escriberesultado(byref ruta_archivo, byref agencia, byref archivo, byref  contenido )
+					call Escriberesultado(rutaresultados, sintesis_agencia, sintesis_fecha_ini ,"SUP_" & sintesis_user_0 & "_" &  sintesis_fecha_ini , line  & " Procesado correctamente" )
+				end if
+			end if
+			
+			if line2(4) = "P" then
+				procesado = CtasxCobrar ( line2(1), line2(0), line2(3), "200" )
+				if procesado=True then
+					'Escriberesultado(byref ruta_archivo, byref agencia, byref archivo, byref  contenido )
+					call Escriberesultado(rutaresultados, sintesis_agencia, sintesis_fecha_ini ,"SUP_" & sintesis_user_0 & "_" &  sintesis_fecha_ini , line  & " Procesado correctamente" )
+				end if
+			end if        
+        end if
+	Next
+End Sub
+
+sub salirmenu()
+	dim ret
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	
+end sub
+
+Function CtasxPagar ( myService, myServiceName, myImport, myUN )
+	CtasxPagar=False
+	'myUN="200"
+	'myImport="1"
+	'myService="201"
+	'myServiceName="SEGIP"
+	
+	Dim Text, ret
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ANSIINS>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ANSIINS>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<LEFT>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<LEFT>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myUN)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1770")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("2460")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myImport)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myService)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myImport)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ESC>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("N")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ESC>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myServiceName)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ESC>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ETX>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	CtasxPagar=True
+End Function
+
+Function CtasxCobrar ( myService, myServiceName, myImport, myUN )
+	Dim Text, ret
+	CtasxCobrar=False
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ANSIINS>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ANSIINS>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<LEFT>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<LEFT>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myUN)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1770")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1431")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myImport)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myService)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myImport)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ESC>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("1")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("N")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ESC>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys (myServiceName)
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ESC>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<ETX>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<DOWN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<RETURN>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	SendHostKeys ("<UP>")
+	ret = WaitForHostUpdate(10)
+	CtasxCobrar=True
+End Function
+
+sub EsperarExistenciaArchivo(byref ruta_archivo)
+	dim fso, existe
+    Set fso = CreateObject ( "Scripting.FileSystemObject")
+	existe = False
+	Do While existe = False
+		espera(1)
+		If (fso.FileExists(ruta_archivo))  Then 
+				set fso = Nothing
+				existe = True 	
+			'MsgBox Now &" Existe " & fso.FileExists(ruta_archivo)
+		Else  	
+		
+			'MsgBox Now &" No existe " & fso.FileExists(ruta_archivo)
+		End If
+    Loop
+	espera(3)
+end Sub
+
+sub Escriberesultado(byref ruta_archivo, byref agencia, byref fecha, byref archivo, byref  contenido )
+	dim fso, existe
+    Set fso = CreateObject ( "Scripting.FileSystemObject")
+	
+	if fso.FolderExists(ruta_archivo & agencia) = False  then
+		fso.CreateFolder(ruta_archivo & agencia)
+	end if
+	
+	if fso.FolderExists(ruta_archivo & agencia & "\" & fecha) = False  then
+		fso.CreateFolder(ruta_archivo & agencia & "\" & fecha)
+	end if
+	
+	if fso.FileExists(ruta_archivo & agencia & "\" & fecha  & "\" & archivo & ".txt") = False  then
+		fso.CreateTextFile(ruta_archivo & agencia & "\" & fecha  & "\" & archivo & ".txt")
+	end if
+	
+	dim a12
+	set a12=fso.OpenTextFile(ruta_archivo  & agencia & "\" & fecha  & "\" & archivo & ".txt",8,true)
+	a12.WriteLine(trim(contenido))
+	a12.Close
+
+	set fso=nothing
+end Sub
+
+Function VerificaSolicitudesPrevias (byref archivo2)
+on error resume next
+	dim objFSO, objFolder, colFiles, objFile
+	VerificaSolicitudesPrevias=False
+ 
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	Set objFolder = objFSO.GetFolder(rutaresultados & sintesis_agencia & "\" & sintesis_fecha_ini  )
+	Set colFiles = objFolder.Files
+	
+	For Each objFile in colFiles
+		'msgbox(InStr (objFile , archivo2))
+		if (InStr (objFile , archivo2)) > 0 then
+			VerificaSolicitudesPrevias=True 
+			Exit For
+		end if
+	Next
+	
+	set objFSO=nothing
+	set colFiles=nothing
+	set colFiles=nothing
+end function
+

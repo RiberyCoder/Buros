@@ -1,0 +1,480 @@
+from datetime import datetime
+from lxml import etree
+contadorAceptados = 0
+contadorRechazados = 0
+contadorRecomendado = 0
+print('HOLA')
+def cliente_asfi(contadorAceptados,contadorRechazados, contadorRecomendado):
+
+    try:
+        deudaDirecta = []
+        deudaIndirecta = []
+        deudaDirecta = {deudaDirecta}
+        deudaIndirecta = GetVar("deudaIndirecta")
+        calificacion = ""
+        validadorCalificacion = ""
+        cantidadDeudaDirecta = 0
+        entidadAsfi = ""
+        acumuladorValidadorDirecta = ""
+        acumuladorVigenteVencido = ""
+        acumuladorEntidad = ""
+        vencida = ""
+        vigente = ""
+        validadorVigente=""
+        validadorVencida=""
+        cantidadCalificacionDistintas = 0
+        cantidadCalificacionDistintasDirectas = 0
+        cantidadCalificacionDistintasIndirectas = 0
+        
+        cantidadDeudasEjecucion = 0
+        cantidadDeudasCastigadas = 0
+        deudaSaldo=0
+        
+        cantidadCuentasRehabilitadas=0
+        cantidadDeudasCC_AFP_SAFIS=0
+        
+        
+        tamanioDirecta = 0
+        tamanioDirecta = len(deudaDirecta)
+        tamanioIndirecta = 0
+        tamanioIndirecta = len(deudaIndirecta)
+        
+        
+        if tamanioDirecta >= 1:
+        
+    # VALIDACION ASFI
+            #Directas
+            for directa in deudaDirecta:
+                #1 Periodo 
+                
+                # 2. Suma total de Deuda Directa mas Deuda Cotingente
+                directa = directa.split("|")
+                directa[9] =directa[9].replace(",","")
+                directa[10] =directa[10].replace(",","")
+               
+                deudaSaldo=deudaSaldo+float(directa[9])+float(directa[10])
+                deudaSaldo = round(deudaSaldo, 2)
+                
+                # 3. Si tiene 4 o más deudas directas, se rechaza
+                #entidadAsfi = directa[0]
+                #if entidadAsfi != "PEF":
+                cantidadDeudaDirecta += 1
+                
+                if validadorCalificacion == "ACEPTADO" and validadorVencida == "ACEPTADO" and validadorVigente == "ACEPTADO":
+                    contadorAceptados += 1
+                else:
+                    contadorRechazados += 1
+                
+                # 4. Si tiene una calificación distinta a  "A" se rechaza
+                #directa = directa.split("|")
+                calificacion = directa[2]
+                
+                if calificacion != "A":
+                    validadorCalificacion = "RECHAZADO"
+                    cantidadCalificacionDistintasDirectas += 1
+                    
+                    contadorRecomendado+=1
+                else:
+                    validadorCalificacion = "ACEPTADO"
+                    
+                         
+          
+            if cantidadDeudaDirecta >= 4:
+                acumuladorEntidad = "RECHAZADO"
+            else:
+                acumuladorEntidad = "ACEPTADO"
+            
+            if acumuladorEntidad == "ACEPTADO":
+                contadorAceptados += 1
+            else:
+                contadorRechazados += 1
+        
+        
+    
+        
+    except Exception as e:
+        PrintException()
+        raise e
+            
+       
+                
+    try:
+        SetVar('cantidadDeudaDirecta',cantidadDeudaDirecta)
+        #SetVar('cantidadCalificacionDistintas',cantidadCalificacionDistintas)
+        SetVar('cantidadCalificacionDistintas',cantidadCalificacionDistintasDirectas)
+        SetVar('cantidadDeudasEjecucion',cantidadDeudasEjecucion)
+        SetVar('cantidadDeudasCastigadas',cantidadDeudasCastigadas)
+        SetVar ('deudaSaldo',deudaSaldo)
+    except Exception as e:
+        PrintException()
+        raise e
+    
+
+    # VALIDACION INFOCRED
+try:
+    rutaInfocred = GetVar("rutaInfocred")
+    print(rutaInfocred)
+    doc = etree.parse(rutaInfocred)
+    raiz=doc.getroot()
+    data = raiz.find("datosFinancieros/sISTEMAFINANCIERO/sISTEMAFINANCIERO")
+    ubicacion = raiz.find("datosFinancieros/sISTEMAFINANCIERO/sISTEMAFINANCIERO")
+    rehabilitacion = raiz.find("datosFinancieros/cUENTASCORRIENTES/cUENTASCORRIENTES")
+    casas = raiz.find("datosFinancieros/cASASCOMERCIALES/cACOMER")
+    afps = raiz.find("datosFinancieros/aFP/dEUDASAFPS")
+    safis = raiz.find("datosSafis")
+    fechascore = raiz.find("scoreCrediticio")
+
+    contadorInfocredAceptados=0
+    contadorInfocredRechazados=0
+    cant = 0
+    def contar_deudas(ubicacion):
+        try:
+            if ubicacion == None:
+                cant = 0
+            else:
+                cant = len(ubicacion)
+                
+            return cant
+            
+        except:
+            print('contar_deudas')
+except:
+        print('errorInfocred')
+
+# 1. Ultima fecha de Actualizacion
+
+
+
+def cliente_calificacion(ubicacion,cant,contadorInfocredAceptados,contadorInfocredRechazados):
+    try:
+        i=0
+        j=0
+        p=0
+        calificacion=""
+        calificacion_acumulado=''
+        while i<cant:
+            calificacion=ubicacion[i].findtext("cALIFICACION")
+            if calificacion != "A" and calificacion != "B" and len(calificacion)>0:
+                j=j+1
+            i=i+1;
+        if j==0:
+            SetVar('validacionCalificacionInfocred','ACEPTADO')
+            contadorInfocredAceptados += 1
+        else:
+            SetVar('validacionCalificacionInfocred','RECHAZADO')
+            contadorInfocredRechazados += 1
+        #SetVar('validacion3_calificacion',calificacion_acumulado)
+    except:
+        print('cliente_calificacion')
+
+# 2. Saldo total mas contingente
+def cliente_saldoTotalyContingente(ubicacion,cant):
+    try: 
+        saldo=""
+        i=0
+        contingente=""
+        saldoyContingente=0
+        
+        
+        while i<cant:
+            
+            if ubicacion[i].findtext("tIPOOBLIGADO").find("GARANTE")==(-1):
+                
+                saldo = ubicacion[i].findtext("sALDO")
+                if len(saldo)>0:
+                    saldo=saldo.replace(",","")
+                
+                    saldoyContingente=float(saldoyContingente)+float(saldo)
+                
+                contingente = str(ubicacion[i].findtext("cONTINGENTE"))
+                if len(contingente)>0:
+                    contingente=contingente.replace(",","")
+                
+                    saldoyContingente=float(saldoyContingente)+float(contingente)
+                
+            
+            i+=1;
+        SetVar('saldoyContingente',saldoyContingente)
+       
+    except:
+        print('cliente_saldoTotalyContingente')
+
+
+def cliente_estado(ubicacion,cant,contadorInfocredAceptados,contadorInfocredRechazados):
+    try:
+        i=0
+        j=0
+        j_ind=0
+        p=0
+        k=0
+        ind=0
+        estado=""
+        estado_acumulado=''
+        estado_acumulado_indirecta=''
+        cantidadMoraEjecucion = 0
+        descripcionCaedec = ""
+        while i<cant:
+            estado=ubicacion[i].findtext("eSTADO")
+            entidad = ubicacion[i].findtext("eNTIDAD")
+            monto = ubicacion[i].findtext("sALDO")
+            banca = ubicacion[i].findtext("tIPOCREDITO")
+            caedec = ubicacion[i].findtext("aCTECONO")
+            fechaInicio = ubicacion[i].findtext("fECHAINICIO")
+            actecono = ubicacion[i].findtext("aCTECONO")
+            tIPOOBLIGADO = ubicacion[i].findtext("tIPOOBLIGADO")
+            if len(estado)>0:
+                if estado != "VIGENTE" or estado != "MORA" and len(estado)>0:
+                    j=j+1
+            i=i+1
+            
+            if tIPOOBLIGADO.find("MORA") > 0 or tIPOOBLIGADO.find("EJECUCION") > 0 or tIPOOBLIGADO.find("CASTIGADO") > 0:
+                cantidadMoraEjecucion += 1
+                
+            if caedec != "" and fechaInicio != "":
+                if descripcionCaedec == "":
+                    descripcionCaedec = caedec+"|"+fechaInicio+"---"
+                else:
+                    descripcionCaedec = descripcionCaedec + caedec+"|"+fechaInicio+"---"
+        if j==0:
+            if k==0:
+                SetVar('validacion2_res','ACEPTADO')
+                contadorInfocredAceptados += 1
+        else:
+            SetVar('validacion2_res','RECHAZADO')
+            contadorInfocredRechazados += 1
+        SetVar('cantidadMoraEjecucion', cantidadMoraEjecucion)
+        SetVar('descripcionCaedec',descripcionCaedec)
+    except:
+        print('cliente_estado')
+# 3. Si los estados son distintos a vigentes
+
+def cliente_distintosaVigente(ubicacion,cant, contadorRecomendado):
+    try: 
+        estadoCantidad=0
+        estado=""
+        i=0
+        cantDistintoVigente=0
+                
+        while i<cant:
+            estado = ubicacion[i].findtext("eSTADO")
+            if len(estado)>0:
+                if estado !="VIGENTE" :
+                    estadoCantidad+=1
+                    contadorRecomendado+=1
+            i+=1;
+        SetVar('estadoCantidad',estadoCantidad)
+        
+       
+    except:
+        print('cliente_distintosaVigente')
+
+
+
+# 4. Cantidad de cuentas rehabilitadas de cuentas clausuradas
+
+def cliente_cuentas_rehabilitadas(rehabilitacion):
+    #rehabilitacion
+    try: 
+        countHab=0
+        #cuentas_rehabilitadas
+        if(rehabilitacion==None):
+            rehabilitacion=0
+        else:
+            countHab=(len(rehabilitacion))    
+        print("estas son cuentas rehabilitadas")
+        print(countHab)
+        print("---------------------------")
+        SetVar('cantidadCuentasRehabilitadas',countHab)
+       
+    except:
+        print('cliente_cuentas_rehabilitadas')
+
+# 5. Cantidad deudas distintas a vigentes en casas comerciales,AFP,SAFIS
+
+def cliente_deudas_CC_AFP_SAFIS(casas,afps,safis):
+    try: 
+    
+        countCasas=0
+        contCasasNV=0
+        countAfps=0   
+        countSafis=0   
+        count_CC_AFP_SAFIS=0
+        mensaje_CC=''
+        mensaje_AFP=''
+        mensaje_SAFIS=''
+        deudaCasas=[]
+        i=0
+        
+        #casas Comerciales
+        if(casas==None):
+            countCasas=0
+        else:
+            countCasas=(len(casas))    
+        print("estas son casas Comerciales")
+        print(countCasas)
+        print("---------------------------")
+        
+        if(countCasas>0):
+            mensaje_CC="*Verificar deudas de casas comerciales."
+            print(mensaje_CC)
+            #SetVar('mensaje_CC',mensaje_CC)
+            SetVar('countCasas',countCasas)
+            while i<countCasas:
+                deudaCasas.append([])
+                entidadCasas = casas[i].findtext("eNTIDAD")
+                montoCasas = casas[i].findtext("mONTO")
+                fechaCasas = casas[i].findtext("fECHAINICIOOPERACION")
+                estadoCasas = casas[i].findtext("eSTADODEUDA")
+                print(estadoCasas)
+                if estadoCasas == 'VIGENTE':
+                    print('casa Vigente')
+                else:
+                    contCasasNV=contCasasNV+1
+                    print('casa NO Vigente')
+                tipoCasas = casas[i].findtext("tIPOOBLIGADO")
+                deudaCasas[i].append(entidadCasas)
+                deudaCasas[i].append("Monto: "+str(montoCasas))
+                deudaCasas[i].append(str(fechaCasas)+"   "+estadoCasas+" - "+tipoCasas)
+                i+=1
+            print(deudaCasas)
+            SetVar('deudaCasas',deudaCasas)
+        
+        #AFP
+        if(afps==None):
+            countAfps=0
+        else:
+            countAfps=(len(afps))
+        print("estas son afps")
+        print(countAfps)
+        print("---------------------------")
+
+        if(countAfps>0):
+            mensaje_AFP="*Verificar deudas de AFPs."
+            print(mensaje_AFP)
+            SetVar('mensaje_AFP',mensaje_AFP)
+        #SAFIS
+        if(safis==None):
+            countSafis=0
+        else:
+            countSafis=(len(safis))
+            
+        print("estas son safis")
+        print(countSafis)
+        print("---------------------------")
+        
+        if(countSafis>0):
+            mensaje_SAFIS="*Verifica deudas de SAFIS."
+            print(mensaje_SAFIS)
+            SetVar('mensaje_SAFIS',mensaje_SAFIS)
+        
+        count_CC_AFP_SAFIS=contCasasNV+countAfps+countSafis
+        SetVar('cantidadDeudasCC_AFP_SAFIS',count_CC_AFP_SAFIS)
+        
+       
+    except:
+        print('cliente_deudas_CC_AFP_SAFIS')
+
+
+
+def cliente_entidades(ubicacion,cant,cuantas_entidades,contadorInfocredAceptados,contadorInfocredRechazados):
+    try:
+        i=0
+        j=0
+        p=0
+        entidad=""
+        entidad_acumulado=''
+        entidad_acumalador = ""
+        cantidadIndirectaInfocred = 0
+        while i<cant:
+            entidad = ubicacion[i].findtext("eNTIDAD")
+            monto = ubicacion[i].findtext("sALDO")
+            tIPOOBLIGADO = ubicacion[i].findtext("tIPOOBLIGADO")            
+            entidad_acumalador = entidad_acumalador + entidad + " "
+            if len(monto)>0:
+                if tIPOOBLIGADO.find("GARANTE") > 0:
+                    j=j+1
+                    cantidadIndirectaInfocred += 1
+            i=i+1;
+        if j<=cuantas_entidades:
+            contadorInfocredAceptados += 1
+        else:
+            contadorInfocredRechazados += 1
+        SetVar("cantidadIndirectaInfocred",cantidadIndirectaInfocred)
+    except :
+        print('cliente_entidades')
+
+def cliente_historial(ubicacion,cant,contadorInfocredAceptados,contadorInfocredRechazados):
+    
+    try:
+        i=0
+        j=0
+        p=0
+        j_ind=0
+        p_ind=0
+        historial=""
+        historial_acumulado=''
+        historial_acumulado_ind=''
+        historicoCrediticio = ""
+        while i<cant:
+            historial=ubicacion[i].findtext("hISTORICO")
+            numeros = list(map(int,str(historial)))
+            entidad = ubicacion[i].findtext("eNTIDAD")
+            monto = ubicacion[i].findtext("sALDO")
+            tIPOOBLIGADO = ubicacion[i].findtext("tIPOOBLIGADO")
+            if len(historial)>0:
+                if (str(historial).find("2") > 0 or str(historial).find("3") > 0 or str(historial).find("4") > 0):
+                    validacion5_historial = "RECHAZADO"
+                    
+                else:
+                    validacion5_historial = "ACEPTADO"
+                    
+            i=i+1;
+        if validacion5_historial == "ACEPTADO":
+            historicoCrediticio = "BUENO"
+            contadorInfocredAceptados += 1
+        else:
+            historicoCrediticio = "MALO"
+            contadorInfocredRechazados += 1
+        SetVar('historicoCrediticio',historicoCrediticio)
+        print (historicoCrediticio)
+    except :
+        print('cliente_historial')
+    
+try:
+    cliente_asfi(contadorAceptados,contadorRechazados,contadorRecomendado=0)
+    contadorInfocredAceptados = 0
+    contadorInfocredRechazados = 0
+    cant=contar_deudas(ubicacion) 
+    
+    
+    if cant >= 0:
+        cliente_calificacion(ubicacion,cant,contadorInfocredAceptados,contadorInfocredRechazados)
+        cliente_estado(ubicacion,cant,contadorInfocredAceptados,contadorInfocredRechazados)
+        cliente_entidades(ubicacion,cant,3,contadorInfocredAceptados,contadorInfocredRechazados)
+        cliente_historial(ubicacion,cant,contadorInfocredAceptados,contadorInfocredRechazados)
+        
+        #cliente_fechaActualizacion(ubicacion,cant)
+        cliente_saldoTotalyContingente(ubicacion,cant)
+        cliente_distintosaVigente(ubicacion,cant,contadorRecomendado)
+        cliente_cuentas_rehabilitadas(rehabilitacion)
+        cliente_deudas_CC_AFP_SAFIS(casas,afps,safis)
+    else:
+        SetVar("cantidadIndirectaInfocred",0)
+        SetVar('historicoCrediticio',"BUENO")
+        SetVar('cantidadMoraEjecucion', 0)
+        SetVar('descripcionCaedec', "Ninguno")
+        
+    
+    print (contadorRecomendado)
+    if contadorRecomendado>0:
+        SetVar('recomendado',"NO RECOMENDADO")
+    else:
+        SetVar('recomendado',"RECOMENDADO")    
+        
+    if contadorInfocredRechazados > 0 or contadorRechazados > 0:
+        aceptadoRechazado = "OBSERVADO"
+    else:
+        aceptadoRechazado = "RECOMENDADO"
+    SetVar('aceptadoRechazado',aceptadoRechazado)
+except :
+    print ('error en set')

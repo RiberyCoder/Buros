@@ -1,0 +1,1097 @@
+Option Explicit
+
+dim ini_sintesis_credenciales
+ini_sintesis_credenciales="C:\AD\PROMUJER\CUADRESERV\archivos\sol0_2\SOLDATA.txt"
+dim ini_sintesis_empresas
+ini_sintesis_empresas="C:\AD\PROMUJER\CUADRESERV\scripts\ini_sintesis_pagos.ini"
+
+dim rol 
+dim agencia
+
+dim sintesis_user
+dim sintesis_pass
+dim sintesis_agencia
+dim sintesis_fecha_ini
+
+dim sintesis_depto
+
+dim hoy
+dim desde, desde_
+dim hasta, hasta_
+dim delay
+delay=1
+
+dim fileoriginal
+fileoriginal="C:\AD\PROMUJER\CUADRESERV\archivos\tempsintesis_2\PrintJob.txt"
+
+dim rutaarchivosnuevos
+rutaarchivosnuevos="C:\AD\PROMUJER\CUADRESERV\archivos\sin_2\"
+
+dim ruterrores
+ruterrores="C:\AD\PROMUJER\CUADRESERV\archivos\Agencias\errores\"
+
+dim rutadeptos
+rutadeptos="C:\AD\PROMUJER\CUADRESERV\scripts\dep_ciu.ini"
+
+dim rutacarpetanueva
+
+
+sub ZMain()
+	sintesis_user=  ReadIni(ini_sintesis_credenciales,"CREDENCIALES","SINTESIS_USER")
+	sintesis_pass=  ReadIni(ini_sintesis_credenciales,"CREDENCIALES","SINTESIS_PASS")
+	sintesis_agencia=  ReadIni(ini_sintesis_credenciales,"CREDENCIALES","SINTESIS_AGE")
+	sintesis_fecha_ini=  ReadIni(ini_sintesis_credenciales,"CREDENCIALES","SINTESIS_FEC")
+	sintesis_depto=  ReadIni(rutadeptos,"DEPARTAMENTO",sintesis_agencia)
+	
+	'msgbox (sintesis_user &" "& sintesis_pass &" "& sintesis_agencia &" "& sintesis_fecha_ini)
+	if ( Inicia_sesion2 = False) then
+		call EscribeError()
+		call salir()	
+	Else
+		call ExtraeData()
+		call LeeArchivo()
+		call EscribeFin()
+		call salir()	
+	End if
+End Sub
+
+sub ExtraeData()
+    dim d_d, d_m, d_y
+	dim mensaje
+	dim arr_ini
+	
+	dim fs11
+	dim a11	
+	arr_ini = dateformat(sintesis_fecha_ini)
+	d_d = mid(arr_ini,1,2)
+	d_m = mid(arr_ini,4,2)
+	d_y = mid(arr_ini,7,4) 
+	
+	'msgbox(rol)
+	if (rol="CAJ") then
+		SendHostKeys ("<DOWN>")	
+		'sintesis_fecha_fin=  ReadIni(ini_sintesis_fechas,"FECHAS","FECHA_FIN")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("9999") 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)		
+		SendHostKeys ("<RIGHT>")
+		call espera(1)	
+
+		SendHostKeys ("<ANSIF2>")
+				
+		call esperapantalla("MSG",22,2, 3)
+		mensaje = GetString(22, 7, 6)		
+		
+		if mensaje = "Aliste" then
+			'MsgBox ("SI	HABIA  "& mensaje)
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			
+			call EsperarExistenciaArchivo(fileoriginal)
+			call espera(1)
+			call mueve_archivo(fileoriginal,sintesis_user & "_TODOS" ,rutaarchivosnuevos,arr_ini)
+			
+		else
+			'MsgBox ("NO HABIA NADA "& mensaje)		
+			
+			Set fs11 = CreateObject("Scripting.FileSystemObject")
+			Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  rol & "_" & sintesis_user & "_TODOS_" & d_d & d_m & d_y & ".txt", True)
+			mensaje = GetString(22, 7, 30)		
+			a11.WriteLine(mensaje)
+			a11.Close
+
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			
+		end if
+		
+			call espera(2)
+	end if 
+	
+	if (rol="SUP") then
+		SendHostKeys ("<DOWN>")	
+		'sintesis_fecha_fin=  ReadIni(ini_sintesis_fechas,"FECHAS","FECHA_FIN")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("9999") 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)
+		SendHostKeys ("9999") 
+		call espera(1)		
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)		
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)		
+
+		SendHostKeys ("<RIGHT>")
+		call espera(1)	
+
+		SendHostKeys ("<ANSIF2>")
+				
+		call esperapantalla("MSG",22,2, 3)
+		mensaje = GetString(22, 7, 6)		
+		
+		if mensaje = "Aliste" then
+			'MsgBox ("SI	HABIA  "& mensaje)
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			
+			call EsperarExistenciaArchivo(fileoriginal)
+			
+			call mueve_archivo(fileoriginal,sintesis_user & "_TODOS" ,rutaarchivosnuevos,arr_ini)
+			
+		else
+			'MsgBox ("NO HABIA NADA "& mensaje)		
+			
+			Set fs11 = CreateObject("Scripting.FileSystemObject")
+			Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  rol & "_" & sintesis_user & "_TODOS_" & d_d & d_m & d_y & ".txt", True)
+			mensaje = GetString(22, 7, 30)		
+			a11.WriteLine(mensaje)
+			a11.Close
+
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			
+		end if
+		
+			call espera(2)
+	end if 
+	
+	
+End Sub
+
+sub EscribeFin()
+	dim fs12
+	dim a12		
+			Set fs12 = CreateObject("Scripting.FileSystemObject")
+			Set a12 = fs12.CreateTextFile(rutaarchivosnuevos &  "FIN.txt", True)
+			a12.WriteLine(trim(agencia))
+			a12.Close
+End Sub
+
+sub EscribeError()
+    
+	dim fs12
+	dim a12		
+			Set fs12 = CreateObject("Scripting.FileSystemObject")
+			Set a12 = fs12.CreateTextFile(rutaarchivosnuevos &  "ERROR.txt", True)
+			a12.Close
+End Sub
+
+Function ReadIni( myFilePath, mySection, myKey )
+    Const ForReading   = 1
+    Const ForWriting   = 2
+    Const ForAppending = 8
+
+    Dim intEqualPos
+    Dim objFSO, objIniFile
+    Dim strFilePath, strKey, strLeftString, strLine, strSection
+
+    Set objFSO = CreateObject( "Scripting.FileSystemObject" )
+
+    ReadIni     = ""
+    strFilePath = Trim( myFilePath )
+    strSection  = Trim( mySection )
+    strKey      = Trim( myKey )
+
+    If objFSO.FileExists( strFilePath ) Then
+        Set objIniFile = objFSO.OpenTextFile( strFilePath, ForReading, False )
+        Do While objIniFile.AtEndOfStream = False
+            strLine = Trim( objIniFile.ReadLine )
+
+            ' Check if section is found in the current line
+            If LCase( strLine ) = "[" & LCase( strSection ) & "]" Then
+                strLine = Trim( objIniFile.ReadLine )
+
+                ' Parse lines until the next section is reached
+                Do While Left( strLine, 1 ) <> "["
+                    ' Find position of equal sign in the line
+                    intEqualPos = InStr( 1, strLine, "=", 1 )
+                    If intEqualPos > 0 Then
+                        strLeftString = Trim( Left( strLine, intEqualPos - 1 ) )
+                        ' Check if item is found in the current line
+                        If LCase( strLeftString ) = LCase( strKey ) Then
+                            ReadIni = Trim( Mid( strLine, intEqualPos + 1 ) )
+                            ' In case the item exists but value is blank
+                            If ReadIni = "" Then
+                                ReadIni = " "
+                            End If
+                            ' Abort loop when item is found
+                            Exit Do
+                        End If
+                    End If
+
+                    ' Abort if the end of the INI file is reached
+                    If objIniFile.AtEndOfStream Then Exit Do
+
+                    ' Continue with next line
+                    strLine = Trim( objIniFile.ReadLine )
+                Loop
+            Exit Do
+            End If
+        Loop
+        objIniFile.Close
+    Else
+        'WScript.Echo strFilePath & " doesn't exists. Exiting..."
+        'Wscript.Quit 1
+    End If
+End Function
+
+Sub creacarpeta()
+    Dim oFSO
+	Set oFSO = CreateObject("Scripting.FileSystemObject")
+	
+	Dim dt
+	dt=now
+	hoy	=(year(dt)& "_" & month(dt))& "_" & day(dt)& "_" &  hour(dt)& "_" & minute(dt)
+	
+	
+	'desde_=Replace(desde,"/","")
+	'hasta_=Replace(hasta,"/","")
+	'oFSO.CreateFolder rutaarchivosnuevos & "SINTESIS_"& hoy &"_"& desde_ &"_"& hasta_
+	oFSO.CreateFolder rutaarchivosnuevos & "SINTESIS_"& hoy 
+end sub
+
+Sub EliminaArchivos()
+    Dim oFSO, oFile
+	Set oFSO = CreateObject("Scripting.FileSystemObject")
+	If oFSO.FolderExists(rutaarchivosnuevos) Then
+		for each oFile in oFSO.GetFolder(rutaarchivosnuevos).Files
+			
+			WScript.Echo "Deleting " & oFile.Name
+			oFile.Delete
+			
+		next
+	End If
+End Sub
+
+Sub LeeExcel()
+	dim objExcel, objWorkbook, intRow 
+	Set objExcel = CreateObject("Excel.Application")
+	Set objWorkbook = objExcel.Workbooks.Open (excelfechas)
+	Dim arr
+	intRow = 2
+	Do Until objExcel.Cells(intRow,1).Value = ""
+			if (objExcel.Cells(intRow, 4).Value="SI") then
+				'MsgBox  "COD SINTESIS: " & objExcel.Cells(intRow, 2).Value & " Empresa: " & objExcel.Cells(intRow, 3).Value & " Fecha Ini: " & objExcel.Cells(intRow, 5).Value & " Fecha Fin: " & objExcel.Cells(intRow, 6).Value 
+				call Genera_empresa (objExcel.Cells(intRow, 2).Value,objExcel.Cells(intRow, 3).Value,objExcel.Cells(intRow, 5).Value,objExcel.Cells(intRow, 6).Value, fileoriginal,rutaarchivosnuevos)
+			end if
+			
+			intRow = intRow + 1
+	Loop
+
+	objExcel.Quit
+
+End Sub
+
+sub LeeArchivo()
+    dim fso111
+    dim filename
+    dim listFile
+    dim listLines
+    dim line, line2
+    dim sintesis_emp_code
+	dim sintesis_empresa
+	dim sintesis_codigo
+	Set fso111=CreateObject("Scripting.FileSystemObject")
+	filename = ini_sintesis_empresas
+	listFile = fso111.OpenTextFile(filename).ReadAll
+	listLines = Split(listFile, vbCrLf)
+	For Each line In listLines
+
+        dim fso
+    	Set fso = CreateObject("Scripting.FileSystemObject")
+		If (fso.FileExists(fileoriginal)) Then 				
+			call elimina_archivo(fileoriginal)
+		End If
+    
+		if line <> "[EMPRESAS]" then
+	        line2= Split(line, "=")
+            sintesis_emp_code = Split(line2(1), "|") 
+            
+            sintesis_empresa= sintesis_emp_code(1)
+            sintesis_codigo=  sintesis_emp_code(0) 
+			
+            'call Genera_empresa(sintesis_codigo ,sintesis_empresa,sintesis_fecha_ini,sintesis_fecha_fin, fileoriginal,rutaarchivosnuevos)
+			call Genera_pagos (sintesis_codigo ,sintesis_empresa,sintesis_fecha_ini, fileoriginal,rutaarchivosnuevos)
+            'WScript.Echo sintesis_empresa &"......."& sintesis_codigo
+		    'My Stuff
+        end if
+	Next
+
+End Sub
+
+Sub Inicia_sesion ()
+		call espera(2)
+		SendHostKeys ("pmul1101")
+		call espera(1)
+		SendHostKeys ("<RETURN>")
+		call espera(1)
+		call esperapantalla("Password",5, 1, 8)
+		SendHostKeys ("Notiga47")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		'call espera(2)	
+		call esperapantalla("DEPARTAMENTO",11, 27, 12)
+				
+		SendHostKeys ("4")
+		call espera(2)	
+		SendHostKeys ("<RETURN>")
+		call espera(2)	
+		SendHostKeys (sintesis_agencia)
+		call espera(2)	
+		SendHostKeys ("9038")
+		call espera(2)	
+	
+		'SendHostKeys ("<RETURN>")
+		call espera(2)	
+
+		SendHostKeys (sintesis_user)
+		call espera(2)	
+		
+		SendHostKeys (sintesis_pass)
+		call espera(2)	
+		SendHostKeys ("<RETURN>")
+		call espera(2)	
+		
+		'SendHostKeys ("<DOWN>") 	'En caso de tener muchos perfiles se habilita este bloque
+		SendHostKeys ("<DOWN>") 	'En caso de tener muchos perfiles se habilita este bloque 
+		call espera(2)	     		'En caso de tener muchos perfiles se habilita este bloque
+		SendHostKeys ("<RETURN>")	'En caso de tener muchos perfiles se habilita este bloque
+		call espera(2)				'En caso de tener muchos perfiles se habilita este bloque	
+		
+		
+		
+		rol = GetString(14, 28, 3)
+		
+		SendHostKeys ("<ANSIF10>")
+		
+		'SendHostKeys ("<esc>")	
+		
+		call espera(2)	
+End Sub
+
+Function Inicia_sesion2 ()
+	Inicia_sesion2=False
+	dim mensaje
+		call espera(2)
+		SendHostKeys ("pmul1101")
+		call espera(1)
+		SendHostKeys ("<RETURN>")
+		call espera(1)
+		call esperapantalla("Password",5, 1, 8)
+		SendHostKeys ("Notiga47")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		'call espera(2)	
+		call esperapantalla("DEPARTAMENTO",11, 27, 12)
+				
+		SendHostKeys (sintesis_depto)
+		call espera(2)	
+		SendHostKeys ("<RETURN>")
+		call espera(2)	
+		SendHostKeys (sintesis_agencia)
+		call espera(2)	
+		SendHostKeys ("9038")
+		call espera(2)	
+	
+		'SendHostKeys ("<RETURN>")
+		call espera(2)	
+
+		SendHostKeys (sintesis_user)
+		call espera(2)	
+		
+		SendHostKeys (sintesis_pass)
+		call espera(2)	
+		SendHostKeys ("<RETURN>")
+		call espera(4)	
+		
+		
+		mensaje = GetString(22, 2, 3)	
+
+		'msgbox (mensaje)
+			
+		
+		if mensaje = "MSG" then
+						
+			mensaje=GetString(22, 2, 50)
+			dim fs12
+			dim a12		
+			Set fs12 = CreateObject("Scripting.FileSystemObject")
+			Set a12 = fs12.CreateTextFile(ruterrores &  sintesis_user & "_" & traerahora & "_ERROR_SIN.txt", True)
+			a12.WriteLine(mensaje)
+			a12.Close
+			Inicia_sesion2=False
+		else
+					
+			'SendHostKeys ("<DOWN>") 	'En caso de tener muchos perfiles se habilita este bloque
+			SendHostKeys ("<DOWN>") 	'En caso de tener muchos perfiles se habilita este bloque 
+			call espera(2)	     		'En caso de tener muchos perfiles se habilita este bloque
+			SendHostKeys ("<RETURN>")	'En caso de tener muchos perfiles se habilita este bloque
+			call espera(2)				'En caso de tener muchos perfiles se habilita este bloque	
+			'call graficapantalla ()
+			agencia = GetString(13, 28, 50)
+			
+					if InStr(agencia, "NTIDAD      :") > 0 then
+					call espera(4)	
+						mensaje = GetString(22, 2, 3)
+						agencia = GetString(13, 28, 50)						
+							if mensaje = "MSG" then
+								mensaje=GetString(22, 2, 50)
+									
+								Set fs12 = CreateObject("Scripting.FileSystemObject")
+								Set a12 = fs12.CreateTextFile(ruterrores &  sintesis_user & "_" & traerahora & "_ERROR_SIN.txt", True)
+								a12.WriteLine(mensaje)
+								a12.Close
+								Inicia_sesion2=False
+								exit function
+							end if
+					end if 			
+
+					if InStr(agencia, "NTIDAD      :") > 0 then					
+								Set fs12 = CreateObject("Scripting.FileSystemObject")
+								Set a12 = fs12.CreateTextFile(ruterrores &  sintesis_user & "_" & traerahora & "_ERROR_SIN.txt", True)
+								a12.WriteLine("DATOS DE LOGUEO INCORRECTOS")
+								a12.Close
+								Inicia_sesion2=False
+								exit function
+					end if 
+					
+			
+			rol = GetString(14, 28, 3)
+			
+			SendHostKeys ("<ANSIF10>")
+			
+			'SendHostKeys ("<esc>")	
+			
+			call espera(2)
+			Inicia_sesion2=True
+			
+		end if	
+	
+End Function
+
+Sub salir ()
+		call espera(10)
+		SendHostKeys ("<ESC>")
+		call espera(2)
+		SendHostKeys ("<ESC>")
+		call espera(2)
+		'ExecMenuCmd ("File-Exit All")
+		ExitAllSessions
+End Sub
+
+Sub Genera_empresa (byref empresa_cod, empresa_nom, fecha_ini, fecha_fin, fileoriginal,rutaarchivosnuevos)
+	dim d_d, d_m, d_y
+	dim h_d, h_m, h_y
+	dim mensaje
+	dim arr_ini
+	dim arr_fin
+	arr_ini = dateformat(fecha_ini)
+	arr_fin= dateformat(fecha_fin)
+
+
+	d_d = mid(arr_ini,1,2)
+	d_m = mid(arr_ini,4,2)
+	d_y = mid(arr_ini,7,4)
+
+	h_d = mid(arr_fin,1,2)
+	h_m = mid(arr_fin,4,2)
+	h_y = mid(arr_fin,7,4)
+
+    dim fs11
+    dim a11
+	dim codigo2, empresa_cod2
+	
+	if(Instr(empresa_cod, ",")>0) then
+		codigo2 =Split(empresa_cod,",")
+		empresa_cod = codigo2(0)
+		empresa_cod2 = codigo2(1) 
+
+		
+		SendHostKeys ("<DOWN>")	
+		SendHostKeys ("<DOWN>")
+		SendHostKeys ("<DOWN>")
+		SendHostKeys ("<DOWN>")	
+		SendHostKeys ("<DOWN>")
+		SendHostKeys ("<DOWN>")
+		
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (empresa_cod) 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (empresa_cod2) 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)	
+		SendHostKeys (h_d)
+		call espera(1)	
+		SendHostKeys (h_m)
+		call espera(1)	
+		SendHostKeys (h_y)
+		call espera(1)	
+		SendHostKeys ("<RIGHT>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<ANSIF2>")
+				
+		call esperapantalla("MSG",22,2, 3)
+		mensaje = GetString(22, 7, 6)		
+		
+		if mensaje = "Aliste" then
+			'MsgBox ("SI	HABIA  "& mensaje)
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			
+			call EsperarExistenciaArchivo(fileoriginal)
+			
+			call mueve_archivo(fileoriginal,empresa_nom,rutaarchivosnuevos,arr_ini,arr_fin)
+			
+		else
+			'MsgBox ("NO HABIA NADA "& mensaje)
+            
+			
+			Set fs11 = CreateObject("Scripting.FileSystemObject")
+			Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  empresa_nom & "_" & d_d & d_m & d_y & "_" & h_d & h_m & h_y & ".txt", True)
+			a11.WriteLine("Sin datos")
+			a11.Close
+
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			
+		end if
+		
+			call espera(2)
+
+
+
+	else
+
+	
+		SendHostKeys ("<DOWN>")	
+		SendHostKeys ("<DOWN>")
+		SendHostKeys ("<DOWN>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (empresa_cod) 
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys (d_d)
+		call espera(1)	
+		SendHostKeys (d_m)
+		call espera(1)	
+		SendHostKeys (d_y)
+		call espera(1)	
+		SendHostKeys (h_d)
+		call espera(1)	
+		SendHostKeys (h_m)
+		call espera(1)	
+		SendHostKeys (h_y)
+		call espera(1)	
+		SendHostKeys ("<RIGHT>")
+		call espera(1)	
+		SendHostKeys ("<RETURN>")
+		call espera(1)	
+		SendHostKeys ("<ANSIF2>")
+				
+		call esperapantalla("MSG",22,2, 3)
+		mensaje = GetString(22, 7, 6)		
+		
+		if mensaje = "Aliste" then
+			'MsgBox ("SI	HABIA  "& mensaje)
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			
+			call EsperarExistenciaArchivo(fileoriginal)
+			
+			call mueve_archivo(fileoriginal,empresa_nom,rutaarchivosnuevos,arr_ini,arr_fin)
+			
+		else
+			'MsgBox ("NO HABIA NADA "& mensaje)
+       	Set fs11 = CreateObject("Scripting.FileSystemObject")
+			Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  empresa_nom & "_" & d_d & d_m & d_y & "_" & h_d & h_m & h_y & ".txt", True)
+			a11.WriteLine("Sin datos")
+			a11.Close
+
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			SendHostKeys ("<ESC>")
+			call espera(1)	
+			
+		end if
+		
+			call espera(2)	
+	end if	
+end sub
+
+Sub Genera_pagos (byref empresa_cod, empresa_nom, fecha_ini,  fileoriginal,rutaarchivosnuevos)
+	dim d_d, d_m, d_y
+	
+	dim mensaje
+	dim arr_ini
+	arr_ini = dateformat(fecha_ini)
+	
+	d_d = mid(arr_ini,1,2)
+	d_m = mid(arr_ini,4,2)
+	d_y = mid(arr_ini,7,4)
+
+     dim fs11
+     dim a11
+		
+
+	dim codigo2, empresa_cod2
+	if (rol="CAJ") then
+		if(Instr(empresa_cod, ",")>0) then
+			codigo2 =Split(empresa_cod,",")
+			empresa_cod = codigo2(0)
+			empresa_cod2 = codigo2(1) 
+			empresa_cod2 =  Right("0000" & empresa_cod2,4)
+			
+			SendHostKeys ("<DOWN>")	
+			
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod) 
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod2) 
+			call espera(1)	
+			SendHostKeys (d_d)
+			call espera(1)	
+			SendHostKeys (d_m)
+			call espera(1)	
+			SendHostKeys (d_y)
+			call espera(1)	
+			SendHostKeys ("<RIGHT>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<ANSIF2>")
+					
+			call esperapantalla("MSG",22,2, 3)
+			mensaje = GetString(22, 7, 6)		
+			
+			if mensaje = "Aliste" then
+				'MsgBox ("SI	HABIA  "& mensaje)
+				call espera(1)	
+				SendHostKeys ("<RETURN>")
+				
+				call EsperarExistenciaArchivo(fileoriginal)
+				
+				call mueve_archivo(fileoriginal,sintesis_user & "_" & empresa_nom & empresa_cod2,rutaarchivosnuevos ,arr_ini)
+				
+			else
+				'MsgBox ("NO HABIA NADA "& mensaje)
+				'Set fs11 = CreateObject("Scripting.FileSystemObject")
+				'Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  sintesis_user & "_" & empresa_nom & "_" & d_d & d_m & d_y & ".txt", True)
+				'mensaje = GetString(22, 7, 20)		
+				'a11.WriteLine(mensaje)
+				'a11.Close
+				'call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+			end if
+				call espera(2)
+		else
+			SendHostKeys ("<DOWN>")	
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod) 
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod2) 
+			call espera(1)	
+			SendHostKeys (d_d)
+			call espera(1)	
+			SendHostKeys (d_m)
+			call espera(1)	
+			SendHostKeys (d_y)
+			call espera(1)	
+			SendHostKeys ("<RIGHT>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<ANSIF2>")
+					
+			call esperapantalla("MSG",22,2, 3)
+			mensaje = GetString(22, 7, 6)		
+			
+			if mensaje = "Aliste" then
+				'MsgBox ("SI	HABIA  "& mensaje)
+				call espera(1)	
+				SendHostKeys ("<RETURN>")
+				
+				call EsperarExistenciaArchivo(fileoriginal)
+				
+				call mueve_archivo(fileoriginal,sintesis_user & "_" & empresa_nom,rutaarchivosnuevos,arr_ini)
+				
+			else
+				'MsgBox ("NO HABIA NADA "& mensaje)
+				'Set fs11 = CreateObject("Scripting.FileSystemObject")
+				'Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  sintesis_user & "_" & empresa_nom & "_" & d_d & d_m & d_y & ".txt", True)
+				'mensaje = GetString(22, 7, 20)		
+				'a11.WriteLine(mensaje)
+				'a11.Close
+				'call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+			end if
+				call espera(2)	
+		end if	
+	end if	
+	
+	if (rol="SUP") then
+		if(Instr(empresa_cod, ",")>0) then
+			codigo2 =Split(empresa_cod,",")
+			empresa_cod = codigo2(0)
+			empresa_cod2 = codigo2(1) 
+			empresa_cod2 =  Right("0000" & empresa_cod2,4)
+			
+			SendHostKeys ("<DOWN>")	
+			call espera(1)	
+			SendHostKeys ("<DOWN>")	
+			call espera(1)
+			SendHostKeys ("<DOWN>")	
+			call espera(1)
+			SendHostKeys ("<DOWN>")	
+			call espera(1)
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod) 
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod2) 
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (d_d)
+			call espera(1)	
+			SendHostKeys (d_m)
+			call espera(1)	
+			SendHostKeys (d_y)
+			call espera(1)	
+			SendHostKeys (d_d)
+			call espera(1)	
+			SendHostKeys (d_m)
+			call espera(1)	
+			SendHostKeys (d_y)
+			call espera(1)	
+			
+			SendHostKeys ("<RIGHT>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<ANSIF2>")
+					
+			call esperapantalla("MSG",22,2, 3)
+			mensaje = GetString(22, 7, 6)		
+			
+			if mensaje = "Aliste" then
+				'MsgBox ("SI	HABIA  "& mensaje)
+				call espera(1)	
+				SendHostKeys ("<RETURN>")
+				
+				call EsperarExistenciaArchivo(fileoriginal)
+				
+				call mueve_archivo(fileoriginal,sintesis_user & "_" & empresa_nom & empresa_cod2,rutaarchivosnuevos ,arr_ini)
+				
+			else
+				'MsgBox ("NO HABIA NADA "& mensaje)
+				'Set fs11 = CreateObject("Scripting.FileSystemObject")
+				'Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  sintesis_user & "_" & empresa_nom & "_" & d_d & d_m & d_y & ".txt", True)
+				'mensaje = GetString(22, 7, 20)		
+				'a11.WriteLine(mensaje)
+				'a11.Close
+				'call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+			end if
+				call espera(2)
+		else
+			SendHostKeys ("<DOWN>")	
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod) 
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys (empresa_cod2) 
+			call espera(1)	
+			SendHostKeys (d_d)
+			call espera(1)	
+			SendHostKeys (d_m)
+			call espera(1)	
+			SendHostKeys (d_y)
+			call espera(1)	
+			SendHostKeys ("<RIGHT>")
+			call espera(1)	
+			SendHostKeys ("<RETURN>")
+			call espera(1)	
+			SendHostKeys ("<ANSIF2>")
+					
+			call esperapantalla("MSG",22,2, 3)
+			mensaje = GetString(22, 7, 6)		
+			
+			if mensaje = "Aliste" then
+				'MsgBox ("SI	HABIA  "& mensaje)
+				call espera(1)	
+				SendHostKeys ("<RETURN>")
+				
+				call EsperarExistenciaArchivo(fileoriginal)
+				
+				call mueve_archivo(fileoriginal,sintesis_user & "_" & empresa_nom,rutaarchivosnuevos,arr_ini)
+				
+			else
+				'MsgBox ("NO HABIA NADA "& mensaje)
+				'Set fs11 = CreateObject("Scripting.FileSystemObject")
+				'Set a11 = fs11.CreateTextFile(rutaarchivosnuevos &  sintesis_user & "_" & empresa_nom & "_" & d_d & d_m & d_y & ".txt", True)
+				'mensaje = GetString(22, 7, 20)		
+				'a11.WriteLine(mensaje)
+				'a11.Close
+				'call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+				SendHostKeys ("<ESC>")
+				call espera(1)	
+			end if
+				call espera(2)	
+		end if	
+	end if	
+end sub
+
+Sub espera (byref cuanto)
+	dim x
+	dim ret
+	 For x = 1 To cuanto
+		 ret = WaitForHostUpdate(delay)
+     Next
+	 ' ret = WaitForHostUpdate(cuanto)
+end sub
+
+sub esperapantalla(byref pantalla_buscada, x, y, largo)
+ dim pantalla_actual
+	pantalla_actual = GetString(x, y, largo)
+	'msgbox "Inicial |" & pantalla_actual &"|"
+	Do While pantalla_actual <> pantalla_buscada
+     'espera(1)
+     pantalla_actual = GetString(x, y, largo)
+	 'msgbox "En Proceso |" & pantalla_actual &"|"
+   Loop
+	 'msgbox "FINAL |" & pantalla_actual &"|"
+end sub
+
+sub elimina_archivo(byref file)
+	dim fso, PV5
+	Set fso = CreateObject("Scripting.FileSystemObject")
+		If (fso.FileExists(file)) Then 
+			Set PV5 = CreateObject("Scripting.FileSystemObject")
+			
+			
+			''WScript.Echo "Borrando "  & file
+			PV5.deletefile file
+			set fso = Nothing
+			set PV5 = Nothing
+		Else 
+		    ''WScript.Echo "No se encontro "  & file
+		End If
+end sub
+
+sub mueve_archivo(byref fileoriginal2, nombrenuevo, rutanuevo, fecha_ini_m)
+	dim fso
+	dim objFSO
+
+	dim d_d, d_m, d_y
+	dim mensaje
+
+	d_d = mid(fecha_ini_m,1,2)
+	d_m = mid(fecha_ini_m,4,2)
+	d_y = mid(fecha_ini_m,7,4)
+
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set objFSO = CreateObject("Scripting.FileSystemObject") 
+
+		If (fso.FileExists(fileoriginal2)) Then 
+			'objFSO.CopyFile fileoriginal2, rutanuevo & "SINTESIS_"& hoy &"\" &  nombrenuevo & "_" & d_d & d_m & d_y & "_" & h_d & h_m & h_y & ".txt"
+			objFSO.CopyFile fileoriginal2,rutanuevo & rol & "_" &  nombrenuevo & "_" & d_d & d_m & d_y & ".txt"				
+			set fso = Nothing
+			set objFSO = Nothing
+			
+			espera (2)
+			call elimina_archivo(fileoriginal2)
+		Else 
+		
+		End If
+end sub
+
+sub graficapantalla()
+	dim y, linea
+	For y = 1 To 25
+	linea = GetString(y,1, 80)
+	msgbox y & " " & linea
+	Next
+end sub
+
+sub EsperarExistenciaArchivo(byref ruta_archivo)
+	dim fso, existe
+    Set fso = CreateObject ( "Scripting.FileSystemObject")
+	existe = False
+	Do While existe = False
+		espera(2)
+		If (fso.FileExists(ruta_archivo))  Then 
+			existe = True 	
+			espera(2)
+				set fso = Nothing
+			'MsgBox Now &" Existe " & fso.FileExists(ruta_archivo)
+		Else  	
+		
+			'MsgBox Now &" No existe " & fso.FileExists(ruta_archivo)
+		End If
+    Loop
+end Sub
+
+Function dateformat(byref fecha)
+    dateformat =   Right("0" & Day( fecha),2) &"/"& Right("0" & Month( fecha),2) &"/"& Year(fecha) 
+end Function
+
+Function traerahora()
+    traerahora=   Right("0" & Day( now),2) & Right("0" & Month( now),2) & Year(now) & "_" &    Right("0" & Hour(now),2) & Right("0" & Minute(now),2) & Right("0" & Second(now),2)
+end Function
+
+sub elegirdia()
+	Dim strMsg,inp01,strTitle,strFlag
+	strTitle = "Reporte de Recaudaciones SINTESIS ingrese:"
+	strMsg = "1: reportes de hoy " & DateAdd("d", 0, Date()) & vbCR
+	strMsg = strMsg & "2: reportes de ayer "& DateAdd("d", -1, Date()) & vbCR
+	strMsg = strMsg & "3: reportes del "& DateAdd("d", -2, Date()) &" al "  &  DateAdd("d", -1, Date()) & vbCR
+	strMsg = strMsg & "4: reportes del "& DateAdd("d", -3, Date()) &" al "  &  DateAdd("d", -1, Date()) & vbCR
+	strMsg = strMsg & "5: para su propio rango de fechas" & vbCR
+	strMsg = strMsg & "0: para salir" & vbCR
+	strFlag = False
+
+	Do While strFlag = False
+
+    inp01 = InputBox(strMsg,"Reporte de Recaudaciones SINTESIS ingrese:")
+    Select Case inp01
+        Case "1"
+            desde= dateformat (DateAdd("d", -0, Date())) 
+            hasta = dateformat (DateAdd("d", -0, Date()))          
+            strFlag = True
+        Case "2"
+            desde= dateformat (DateAdd("d", -1, Date())) 
+            hasta = dateformat (DateAdd("d", -1, Date()))  
+            strFlag = True
+        Case "3"
+            desde= dateformat (DateAdd("d", -2, Date())) 
+            hasta = dateformat (DateAdd("d", -1, Date()))
+            strFlag = True
+        Case "4"
+            desde= dateformat (DateAdd("d", -3, Date())) 
+            hasta = dateformat (DateAdd("d", -1, Date()))          
+            strFlag = True
+        Case "5"
+            strMsg = "Ingrese fecha desde en formato DD/MM/YYYY:"
+            desde=InputBox(strMsg,"Para su propio rango de fechas")
+            
+            if IsDate(desde) = false then
+                msgbox ("No ingreso una fecha de inicio valida, por favor ingrese de nuevo")
+                ExitAllSessions
+            end if
+
+            strMsg = "Ingrese fecha hasta:"
+            hasta=InputBox(strMsg,"Para su propio rango de fechas, por favor ingrese de nuevo")
+
+            if IsDate(hasta) = false then
+                msgbox ("No ingreso una fecha de fin valida, por favor ingrese de nuevo")
+                ExitAllSessions
+            end if
+
+            if (desde>hasta) then
+                msgbox ("Fecha de inicio mayor a fecha de fin, por favor ingrese de nuevo")
+                ExitAllSessions
+            end if
+            
+            desde= dateformat (DateAdd("d", -0, desde)) 
+            hasta = dateformat (DateAdd("d", -0, hasta))
+
+            strFlag = True
+        Case "0"
+   
+            strFlag = True
+            ExitAllSessions   
+
+        Case Else
+            MsgBox "No selecciono una opcion valida, intente de nuevo",64,strTitle
+    End Select
+	Loop
+end sub

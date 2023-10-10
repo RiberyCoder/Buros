@@ -1,0 +1,6 @@
+import base64
+carnet = '4376758'
+b64str = ""+GetVar('token')+""
+with open('D:\\AD\\BUROS\\descargas\\segip_b64_'+carnet+'.pdf', 'wb') as pdf:
+    pdf.write(base64.b64decode(b64str))
+	

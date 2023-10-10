@@ -1,0 +1,54 @@
+###########################
+#      CI y QUERY        #
+###########################
+'7904859' and EXECUTE SP_SELECT_COMPARAR_ASFI_INFOCRED_v2 @CI='7904859', @TIKET1 =  '{ticket_ant}', @TIKET2 = '{ticket_db}'
+
+###########################
+#      Data1 Comparar    #
+###########################
+
+###########################
+#      Observados        #
+###########################
+True
+
+###########################
+#      CI y QUERY        #
+###########################
+'7904859' and EXECUTE SP_SELECT_COMPARAR_ASFI_INFOCRED_v2 @CI='7904859', @TIKET1 =  '{ticket_ant}', @TIKET2 = '{ticket_db}'
+
+###########################
+#      Data1 Comparar    #
+###########################
+['ESTE ES UN DATO']
+###########################
+#      Observados        #
+###########################
+True
+
+###########################
+#      Datos PDF         #
+###########################
+[{'CI': '9247050', 'TIPO': 'PARTICIPANTE', 'monto_buro': 'NO'}, {'CI': '9076990', 'TIPO': 'TITULAR', 'monto_buro': 'NO'},{'CI': '1389314', 'TIPO': 'PARTICIPANTE', 'monto_buro': 'NO'}]
+
+###########################
+#      Para Correo 1     #
+###########################
+ejemplo@bancoecofuturo.com.bo
+
+###########################
+#      Para Correo       #
+###########################
+NSANJINES@BANCOECOFUTURO.COM.BO
+
+###########################
+#      Data Plan         #
+###########################
+[{'PLAN_DE_PAGOS': ''}]
+
+###########################
+#      Data D            #
+###########################
+[{'RES_BUROS': 'ACEPTADO', 'RES_PCCU': 'ACEPTADO', 'NPRESTAMO': '2093259', 'COMPARA_CI': 'ACEPTADO', 'RETENCIONES': 'SI'}]
+
+

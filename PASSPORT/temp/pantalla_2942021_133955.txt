@@ -1,0 +1,29 @@
+   000000000111111111122222222223333333333444444444455555555556666666666777777777788888
+   123456789012345678901234567890123456789012345678901234567890123456789012345678901234
+1                                                                                  
+2                                                                                  
+3                                                                                  
+4      TESORERIA              FUNDACION PRO MUJER - IFD             29/04/2021     
+5                                 EXTRACTO BANCARIO                                
+6                                                                                  
+7                                                                                  
+8               OPCIONES                                 DATOS                     
+9                                                                                  
+10                                                                                  
+11                                          Banco         :   1                     
+12                                          No. de Cuenta : 2569150054 CTE          
+13         Generar e imprimir                          IMPRESORAS                   
+14     *   Generar excel                 IMPRESORA DE TERMINAL                      
+15         Ver en pantalla                                                          
+16         Repetir impresion                                                        
+17         Volver al menu anterior                                                  
+18                                                                                  
+19                                                                                  
+20                             48940    ts515.xls                                   
+21                                                                                  
+22     AXON                                                                         
+23                                                                                  
+24                                                                                  
+25                                                                                  
+
+

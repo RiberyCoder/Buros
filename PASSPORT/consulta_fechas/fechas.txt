@@ -1,0 +1,3 @@
+[FECHAS]
+fechaini=01/05/2021
+fechafin=19/05/2021

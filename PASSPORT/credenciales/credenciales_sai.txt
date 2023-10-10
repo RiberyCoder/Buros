@@ -1,0 +1,4 @@
+[CREDENCIALES]
+OTR_USER=TDR
+OTR_PASS=*Ecofuturo123
+ambiente=prod
