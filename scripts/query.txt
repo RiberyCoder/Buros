@@ -1,0 +1,11 @@
+USE Desembolsos;
+
+DECLARE @sql NVARCHAR(MAX) = N'';
+
+-- Generar instrucciones DELETE para cada tabla
+SELECT @sql += 'DELETE FROM ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) + ';' 
+FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+-- Ejecutar las instrucciones DELETE
+EXEC sp_executesql @sql;

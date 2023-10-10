@@ -1,0 +1,12 @@
+------------ Logs 05-10-2023 ------------
+05/10/2023 09:40:25 ---> Inicio robot 00DebAutomaticV1 
+05/10/2023 09:40:26 ---> Inicio robot Debito Automatico 
+05/10/2023 09:40:26 ---> Iniciando netbank 
+05/10/2023 09:41:45 ---> Inicio Maestro Prestamo 
+05/10/2023 09:43:13 ---> Los carnets de identidad no coinciden entre el TICKET y el PRESTAMO. Desembolso automatico rechazado.  Usuario: malba@bancoecofuturo.com.bo - Agencia: Pampa de la Isla - Sucursal Santa Cruz 
+05/10/2023 09:44:28 ---> Fin robot Maestro Prestamo 
+05/10/2023 09:44:30 ---> El prestamo no es apto para Realizar el desembolso.  Usuario: malba@bancoecofuturo.com.bo - Agencia: Pampa de la Isla - Sucursal Santa Cruz 
+05/10/2023 09:44:32 ---> El desembolso del prestamo Nro.: 70110085 no fue realizado.  Usuario: malba@bancoecofuturo.com.bo - Agencia: Pampa de la Isla - Sucursal Santa Cruz 
+05/10/2023 09:44:51 ---> Cierre robot Debito Automatico 
+05/10/2023 09:44:51 ---> Fin robot 00DebAutomaticV1 
+09/10/2023 11:17:04 ---> Iniciando netbank 

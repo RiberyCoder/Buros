@@ -1,0 +1,14 @@
+# Archivos temporales
+*~
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Carpeta de resultados de compilación
+/bin/
+
+# Carpeta de dependencias
+/node_modules/
+
+scripts/Tesseract-OCR/*
