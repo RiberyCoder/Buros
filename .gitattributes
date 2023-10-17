@@ -1,3 +1,2 @@
-*.db filter=lfs diff=lfs merge=lfs -text
 robot/buros_sincorreo.db filter=lfs diff=lfs merge=lfs -text
 robot/buros.db filter=lfs diff=lfs merge=lfs -text
