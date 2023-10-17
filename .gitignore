@@ -15,3 +15,5 @@ scripts/Tesseract-OCR/*
 # Archivos grandes
 robot/buros_sincorreo.db
 robot/buros.db
+# Archivos grandes
+*.db

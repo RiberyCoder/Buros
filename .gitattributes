@@ -1,12 +1,15 @@
-<<<<<<< HEAD
-robot/desembolsos.db filter=lfs diff=lfs merge=lfs -text
-robot/desembolsos09.10.2023.db filter=lfs diff=lfs merge=lfs -text
-robot/desembolsos13.09.2023.db filter=lfs diff=lfs merge=lfs -text
-robot/desembolsos192.168.200.233.db filter=lfs diff=lfs merge=lfs -text
-scripts/Tesseract-OCR/libtesseract-5.dll filter=lfs diff=lfs merge=lfs -text
-=======
+# Abrir el archivo .gitattributes en un editor de texto (puedes usar nano, vim, o cualquier editor que prefieras)
+nano .gitattributes
+
+# Agregar o modificar las líneas según lo que necesitas, por ejemplo:
+# Mantener Git LFS solo para buros_02.db y buros_05.db
 robot/buros_02.db filter=lfs diff=lfs merge=lfs -text
 robot/buros_05.db filter=lfs diff=lfs merge=lfs -text
->>>>>>> dd78ae31be0070dbc11e14385efc16ef9bcd91df
+# Excluir otros archivos .db del manejo de Git LFS
+robot/desembolsos.db -text
+robot/desembolsos09.10.2023.db -text
+robot/desembolsos13.09.2023.db -text
+robot/desembolsos192.168.200.233.db -text
+scripts/Tesseract-OCR/libtesseract-5.dll -text
 robot/buros_sincorreo.db filter=lfs diff=lfs merge=lfs -text
 robot/buros.db filter=lfs diff=lfs merge=lfs -text
