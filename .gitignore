@@ -12,8 +12,7 @@ Thumbs.db
 /node_modules/
 
 scripts/Tesseract-OCR/*
-# Archivos grandes
-robot/buros_sincorreo.db
-robot/buros.db
-# Archivos grandes
+
+# Ignorar todos los archivos .db excepto los de robot/
 *.db
+!robot/*.db
