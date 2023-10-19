@@ -1,0 +1,76 @@
+###########################
+#      ROBOT_OBS        #
+###########################
+INICIO ROBOT_OBS
+
+###########################
+#      CI y QUERY        #
+###########################
+4332947 and EXECUTE SP_SELECT_COMPARAR_ASFI_INFOCRED_v2 @CI=4332947, @TIKET1 = 459048, @TIKET2 = 460387
+
+###########################
+#      Data1 Comparar    #
+###########################
+[{'CI': '4332947', 'TIKET': '459048', 'ASFI_PERIODO': 'julio-2023', 'ASFI_DEUDA_SALDO': '2577.41', 'ASFI_CANT_DD': '1', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': '', 'INFOCRED_SALDO_Y_CONT': '0.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}, {'CI': '4332947', 'TIKET': '460387', 'ASFI_PERIODO': 'agosto-2023', 'ASFI_DEUDA_SALDO': '1295.24', 'ASFI_CANT_DD': '1', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/08/2023', 'INFOCRED_SALDO_Y_CONT': '1295.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}]
+
+###########################
+#      Observados        #
+###########################
+True
+
+###########################
+#      ROBOT_OBS        #
+###########################
+INICIO ROBOT_OBS
+
+###########################
+#      CI y QUERY        #
+###########################
+7702577 and EXECUTE SP_SELECT_COMPARAR_ASFI_INFOCRED_v2 @CI=7702577, @TIKET1 = 459048, @TIKET2 = 460387
+
+###########################
+#      Data1 Comparar    #
+###########################
+[{'CI': '7702577', 'TIKET': '459048', 'ASFI_PERIODO': 'julio-2023', 'ASFI_DEUDA_SALDO': '2577.41', 'ASFI_CANT_DD': '1', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': '', 'INFOCRED_SALDO_Y_CONT': '0.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}, {'CI': '7702577', 'TIKET': '460387', 'ASFI_PERIODO': 'agosto-2023', 'ASFI_DEUDA_SALDO': '1295.24', 'ASFI_CANT_DD': '1', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/08/2023', 'INFOCRED_SALDO_Y_CONT': '1295.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}]
+
+###########################
+#      Observados        #
+###########################
+True
+
+###########################
+#  ROBOT unionPDF         #
+###########################
+INICIO ROBOT unionPDF
+
+#########################################
+#  CPT y ticket_ant: 459048-459048-460387 #
+#########################################
+[{'CI': '7702577', 'TIKET': '459048', 'ASFI_PERIODO': 'julio-2023', 'ASFI_DEUDA_SALDO': '2577.41', 'ASFI_CANT_DD': '1', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': '', 'INFOCRED_SALDO_Y_CONT': '0.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}, {'CI': '7702577', 'TIKET': '460387', 'ASFI_PERIODO': 'agosto-2023', 'ASFI_DEUDA_SALDO': '1295.24', 'ASFI_CANT_DD': '1', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/08/2023', 'INFOCRED_SALDO_Y_CONT': '1295.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}]
+
+###########################
+#  Datos PDF CON: 459048   #
+###########################
+[{'CI': '7702577', 'TIPO': 'PARTICIPANTE', 'monto_buro': 'NO'}, {'CI': '4332947', 'TIPO': 'TITULAR', 'monto_buro': 'NO'}, {'CI': '4332947', 'TIPO': 'TITULAR', 'monto_buro': 'NO'}]
+
+###########################
+#      Para Correo 1      #
+###########################
+marilopez@bancoecofuturo.com.bo
+
+###########################
+#      Para Correo        #
+###########################
+vaneiva@bancoecofuturo.com.bo
+
+###########################
+#      Data Plan          #
+###########################
+[{'PLAN_DE_PAGOS': ''}]
+
+###########################
+#      Data D             #
+###########################
+[{'RES_BUROS': 'FALLIDO', 'RES_PCCU': 'ACEPTADO', 'NPRESTAMO': '70109953', 'COMPARA_CI': 'None', 'RETENCIONES': 'None'}]
+
+

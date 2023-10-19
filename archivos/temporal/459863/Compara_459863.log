@@ -1,0 +1,56 @@
+###########################
+#      ROBOT_OBS        #
+###########################
+INICIO ROBOT_OBS
+
+###########################
+#      CI y QUERY        #
+###########################
+7118072 and EXECUTE SP_SELECT_COMPARAR_ASFI_INFOCRED_v2 @CI=7118072, @TIKET1 = 459863, @TIKET2 = 461309
+
+###########################
+#      Data1 Comparar    #
+###########################
+[{'CI': '7118072', 'TIKET': '459863', 'ASFI_PERIODO': 'agosto-2023', 'ASFI_DEUDA_SALDO': '101764.71', 'ASFI_CANT_DD': '3', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/07/2023', 'INFOCRED_SALDO_Y_CONT': '107226.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}, {'CI': '7118072', 'TIKET': '461309', 'ASFI_PERIODO': '', 'ASFI_DEUDA_SALDO': '0.0', 'ASFI_CANT_DD': '0', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/08/2023', 'INFOCRED_SALDO_Y_CONT': '101764.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}]
+
+###########################
+#      Observados        #
+###########################
+False
+
+###########################
+#  ROBOT unionPDF         #
+###########################
+INICIO ROBOT unionPDF
+
+#########################################
+#  CPT y ticket_ant: 459863--461313 #
+#########################################
+[{'CI': '7118072', 'TIKET': '459863', 'ASFI_PERIODO': 'agosto-2023', 'ASFI_DEUDA_SALDO': '101764.71', 'ASFI_CANT_DD': '3', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/07/2023', 'INFOCRED_SALDO_Y_CONT': '107226.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}, {'CI': '7118072', 'TIKET': '461309', 'ASFI_PERIODO': '', 'ASFI_DEUDA_SALDO': '0.0', 'ASFI_CANT_DD': '0', 'ASFI_CANT_CAL_DIST': '0', 'INFOCRED_ULT_F_ACT': ' 31/08/2023', 'INFOCRED_SALDO_Y_CONT': '101764.0', 'INFOCRED_CANT_ESTADO': '0', 'INFOCRED_CANT_C_REHAB': '0', 'INFOCRED_CANT_D_CC_AFP_SAFIS': '0'}]
+
+###########################
+#  Datos PDF CON: 459863   #
+###########################
+[{'CI': '7118072', 'TIPO': 'TITULAR', 'monto_buro': 'NO'}, {'CI': '7118072', 'TIPO': 'TITULAR', 'monto_buro': 'NO'}]
+
+###########################
+#      Para Correo 1      #
+###########################
+ysoruco@bancoecofuturo.com.bo
+
+###########################
+#      Para Correo        #
+###########################
+mrocabado@bancoecofuturo.com.bo
+
+###########################
+#      Data Plan          #
+###########################
+[{'PLAN_DE_PAGOS': ''}]
+
+###########################
+#      Data D             #
+###########################
+[{'RES_BUROS': 'ACEPTADO', 'RES_PCCU': 'ACEPTADO', 'NPRESTAMO': '6042335', 'COMPARA_CI': 'ACEPTADO', 'RETENCIONES': 'None'}]
+
+
